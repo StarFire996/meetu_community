@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meetu.community.mapper.NotifyMapper">
+	<!--设置domain类和数据库中表的字段一一对应，注意数据库字段和domain类中的字段名称不致，此处一定要！ -->
+	<resultMap id="BaseResultMap" type="com.meetu.community.domain.Notify">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="user_from" property="userFrom" jdbcType="INTEGER" />
+		<result column="user_to" property="userTo" jdbcType="INTEGER" />
+		<result column="post_id" property="postId" jdbcType="INTEGER" />
+		<result column="imgs" property="imgs" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="comment" property="comment" jdbcType="VARCHAR" />
+		<result column="is_read" property="isRead" jdbcType="INTEGER" />
+		<result column="create_at" property="createAt" jdbcType="DATE" />
+	</resultMap>
+	<!-- 根据被通知用户code查询 -->
+	<select id="selectNotifyByUserTo" parameterType="hashmap" resultMap="BaseResultMap">
+		select * from iu_community_notify where user_to = #{userTo} and create_at &lt; #{timestamp}
+		order by create_at desc limit 10
+	</select>
+	
+	<!-- 查询点赞通知 -->
+	<select id="selectPraiseNotify" parameterType="com.meetu.community.domain.Notify" resultMap="BaseResultMap">
+		select * from iu_community_notify 
+		where 
+		user_from = #{userFrom} and user_to = #{userTo} and post_id = #{postId} and type =#{type}
+	</select>
+	
+
+	<insert id="insertNotify" useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.meetu.community.domain.Notify">
+		insert into iu_community_notify
+		(type,user_from,user_to,post_id,imgs,content,comment,is_read,create_at)
+		values
+		(#{type},#{userFrom},#{userTo},#{postId},#{imgs},#{content},#{comment},#{isRead},#{createAt})
+	</insert>
+
+	<!-- 根据userCode将通知置为已读 -->
+	<update id="setNotifyRead" parameterType="int">
+		update iu_community_notify
+			set is_read = 1
+		where user_to=#{userCode}
+	</update>
+
+	<!-- 删除点赞通知 -->
+	<delete id="deletePraiseNotify" parameterType="com.meetu.community.domain.Notify">
+		delete from iu_community_notify
+		where 
+		user_from = #{userFrom} and user_to = #{userTo} and post_id = #{postId} and type =#{type}
+	</delete>
+	
+	<!-- 删除帖子相关通知 -->
+	<delete id="deleteNotifyByPostId" parameterType="int">
+		delete from iu_community_notify where post_id = #{postId}
+	</delete>
+	
+	<!-- 删除自己被通知的通知 -->
+	<delete id="deleteNotifyByUserTo" parameterType="int">
+		delete from iu_community_notify where user_to = #{userTo}
+	</delete>
+</mapper>

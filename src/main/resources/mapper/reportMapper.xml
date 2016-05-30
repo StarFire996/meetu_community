@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meetu.community.mapper.ReportMapper">
+	<!--设置domain类和数据库中表的字段一一对应，注意数据库字段和domain类中的字段名称不致，此处一定要！ -->
+	<resultMap id="BaseResultMap" type="com.meetu.community.domain.Report">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="post_id" property="postId" jdbcType="INTEGER" />
+		<result column="comment_id" property="commentId" jdbcType="INTEGER" />
+		<result column="user_from" property="userFrom" jdbcType="INTEGER" />
+		<result column="user_to" property="userTo" jdbcType="INTEGER" />
+		<result column="create_at" property="createAt" jdbcType="DATE" />
+	</resultMap>
+
+
+	<insert id="insertReport" useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.meetu.community.domain.Report">
+		insert into iu_community_report
+		(post_id,comment_id,user_from,user_to,create_at)
+		values
+		(#{postId},#{commentId},#{userFrom},#{userTo},#{createAt})
+	</insert>
+	
+</mapper>

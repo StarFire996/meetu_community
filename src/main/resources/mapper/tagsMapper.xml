@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meetu.community.mapper.TagsMapper">
+	<!--设置domain类和数据库中表的字段一一对应，注意数据库字段和domain类中的字段名称不致，此处一定要！ -->
+	<resultMap id="BaseResultMap" type="com.meetu.community.domain.Tags">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="level" property="level" jdbcType="INTEGER" />
+		<result column="post_num" property="postNum" jdbcType="INTEGER" />
+		<result column="create_at" property="createAt" jdbcType="DATE" />
+	</resultMap>
+	<!-- 查询记录 -->
+	<select id="selectTagsById" parameterType="int" resultMap="BaseResultMap">
+		select *
+		from iu_community_tags where id = #{id}
+	</select>
+	
+	<!-- 模糊查询 -->
+	<select id="selectTagsListByName" parameterType="string" resultMap="BaseResultMap">
+		select id content
+		from iu_community_tags where content like '%${value}%' limit 30
+	</select>
+	
+	<!-- 查询推荐 -->
+	<select id="selectTagsListByRec"  resultMap="BaseResultMap">
+		select id,content
+		from iu_community_tags where level > 0 order by level desc
+	</select>
+	<!-- 查询热度 -->
+	<select id="selectTagsListByHot"  resultMap="BaseResultMap">
+		select id,content,post_num
+		from iu_community_tags 
+		where level = 0 
+		order by post_num desc,create_at desc 
+		limit 5 
+	</select>
+	<!-- 查询新鲜 -->
+	<select id="selectTagsListByNew" parameterType="com.meetu.community.domain.Tags" resultMap="BaseResultMap">
+		select id,content,create_at
+		from iu_community_tags 
+		where 
+			level = 0 
+			and post_num &lt; #{postNum} 
+			and create_at &lt; #{createAt} 
+		order by create_at desc
+		limit 10
+	</select>
+	<!-- 根据帖子id查询标签 -->
+	<select id="selectTagsListByPostId" parameterType="int" resultMap="BaseResultMap">
+		select a.id,a.content
+			from iu_community_tags a, iu_community_post_tag b,iu_community_post c
+		where 
+			a.id = b.tags_id and c.id = b.post_id and c.id =#{postId}
+	</select>
+	
+	
+
+
+	<insert id="insertTag" useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.meetu.community.domain.Tags">
+		insert into iu_community_tags
+		(content,level,post_num,create_at)
+		values
+		(#{content},#{level},#{postNum},#{createAt})
+	</insert>
+
+	<!-- 更新updateUserInfo -->
+	<update id="updateTag" parameterType="com.meetu.community.domain.Tags">
+		update iu_community_tags
+		<set>
+			<if test="level != null">
+				level = #{level},
+			</if>
+			<if test="postNum != null">
+				post_num = #{postNum}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+</mapper>

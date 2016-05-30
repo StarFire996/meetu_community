@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meetu.community.mapper.PraiseMapper">
+	<!--设置domain类和数据库中表的字段一一对应，注意数据库字段和domain类中的字段名称不致，此处一定要！ -->
+	<resultMap id="BaseResultMap" type="com.meetu.community.domain.Praise">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="post_id" property="postId" jdbcType="INTEGER" />
+		<result column="user_from" property="userFrom" jdbcType="INTEGER" />
+		<result column="user_to" property="userTo" jdbcType="INTEGER" />
+		<result column="create_at" property="createAt" jdbcType="DATE" />
+	</resultMap>
+	<!-- 查询记录 -->
+	<select id="selectPraiseById" parameterType="int" resultMap="BaseResultMap">
+		select * from iu_community_praise where id = #{id}
+	</select>
+	
+	<!-- 根据点赞用户code和帖子id查询 -->
+	<select id="selectPraiseByUserCodeAndPostId" parameterType="com.meetu.community.domain.Praise" resultMap="BaseResultMap">
+		select * from iu_community_praise where user_from =#{userFrom} and post_id = #{postId}
+	</select>
+
+
+	<insert id="insertPraise" useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.meetu.community.domain.Praise">
+		replace into iu_community_praise
+		(post_id,user_from,user_to,create_at)
+		values
+		(#{postId},#{userFrom},#{userTo},#{createAt})
+	</insert>
+	
+	<delete id="deletePraiseById" parameterType="int">
+		delete from iu_community_praise where id = #{id}
+	</delete>
+	<!-- 根据帖子id删除 -->
+	<delete id="deletePraiseByPostId" parameterType="int">
+		delete from iu_community_praise where post_id = #{postId}
+	</delete>
+</mapper>

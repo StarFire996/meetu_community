@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meetu.community.mapper.PostMapper">
+	<!--设置domain类和数据库中表的字段一一对应，注意数据库字段和domain类中的字段名称不致，此处一定要！ -->
+	<resultMap id="BaseResultMap" type="com.meetu.community.domain.Post">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="imgs" property="imgs" jdbcType="VARCHAR" />
+		<result column="music" property="music" jdbcType="VARCHAR" />
+		<result column="comment_num" property="commentNum" jdbcType="INTEGER" />
+		<result column="praise_num" property="praiseNum" jdbcType="INTEGER" />
+		<result column="level" property="level" jdbcType="INTEGER" />
+		<result column="create_by" property="createBy" jdbcType="INTEGER" />
+		<result column="create_at" property="createAt" jdbcType="DATE" />
+	</resultMap>
+	<!-- 查询记录 -->
+	<select id="selectPostById" parameterType="int" resultMap="BaseResultMap">
+		select *
+		from iu_community_post where id = #{id}
+	</select>
+
+	<!-- 根据话题查询帖子 -->
+	<select id="selectPostListByTagId" parameterType="hashmap"
+		resultMap="BaseResultMap">
+		select a.*
+		from
+		iu_community_post a,iu_community_tags b,iu_community_post_tag c
+		where
+		a.id = c.post_id and b.id = c.tags_id and b.id =#{tagId} and a.create_at &lt; #{createAt}
+		order by a.create_at desc limit 10
+	</select>
+
+	<!-- 查询新的帖子 -->
+	<select id="selectNewPostList" resultMap="BaseResultMap">
+		select *
+		from
+		iu_community_post
+		where
+		create_at &lt; #{timestamp}
+		order by create_at desc limit 10
+	</select>
+
+	<!-- 查询推荐的帖子 -->
+	<select id="selectRecommendPostList" resultMap="BaseResultMap">
+		select *
+		from
+		iu_community_post
+		where
+		create_at &lt; #{timestamp}
+		order by level desc,praise_num desc,comment_num desc limit 10
+	</select>
+
+	<!-- 查询好友的帖子 -->
+	<select id="selectFriendPostListById" parameterType="hashmap" resultMap="BaseResultMap">
+		SELECT
+		*
+		FROM
+		iu_community_post
+		WHERE
+		create_by IN (
+		SELECT
+		b. CODE
+		FROM
+		meetu_friends_rel a,
+		sys_user b
+		WHERE
+		a.user_id2 = b.id
+		AND a.user_id1 = #{userFromId}
+		GROUP BY
+		a.user_id2
+		)
+		AND create_at &lt; #{timestamp}
+		ORDER BY
+		create_at DESC
+		LIMIT 10
+	</select>
+	<!-- 根据用户code查询帖子 -->
+	<select id="selectPostListByCode" parameterType="hashmap"
+		resultMap="BaseResultMap">
+		select *
+		from
+		iu_community_post
+		where
+		create_by =#{userFrom} and create_at &lt; #{timestamp}
+		order by create_at desc
+		limit 10
+	</select>
+
+
+	<insert id="insertPost" useGeneratedKeys="true" keyProperty="id"
+		parameterType="com.meetu.community.domain.Post">
+		insert into iu_community_post
+		(type,content,imgs,music,comment_num,praise_num,level,create_by,create_at)
+		values
+		(#{type},#{content},#{imgs},#{music},#{commentNum},#{praiseNum},#{level},#{createBy},#{createAt})
+	</insert>
+
+	<!-- 更新updateUserInfo -->
+	<update id="updatePost" parameterType="com.meetu.community.domain.Post">
+		update iu_community_post
+		<set>
+			<if test="level != null">
+				level = #{level},
+			</if>
+			<if test="commentNum != null">
+				comment_num = #{commentNum},
+			</if>
+			<if test="praiseNum != null">
+				praise_num = #{praiseNum}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<!-- 删除帖子 -->
+	<delete id="deletePostById" parameterType="int">
+		delete from iu_community_post where id = #{id}
+	</delete>
+
+</mapper>

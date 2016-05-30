@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meetu.community.mapper.UserMapper">
+	<!--设置domain类和数据库中表的字段一一对应，注意数据库字段和domain类中的字段名称不致，此处一定要！ -->
+	<resultMap id="BaseResultMap" type="com.meetu.community.domain.User">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="code" property="code" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="idcard" property="idcard" jdbcType="DATE" />
+		<result column="nickname" property="nickname" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="password_hx" property="password_hx" jdbcType="VARCHAR" />
+		<result column="icon_url" property="icon_url" jdbcType="VARCHAR" />
+		<result column="original_icon_url" property="original_icon_url"
+			jdbcType="VARCHAR" />
+		<result column="icon_is_validate" property="icon_is_validate"
+			jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="VARCHAR" />
+		<result column="birth_date" property="birth_date" jdbcType="DATE" />
+		<result column="height" property="height" jdbcType="INTEGER" />
+		<result column="weight" property="weight" jdbcType="INTEGER" />
+		<result column="virtual_currency" property="virtual_currency"
+			jdbcType="INTEGER" />
+		<result column="isgraduated" property="isgraduated" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="cityname" property="cityname" jdbcType="VARCHAR" />
+		<result column="cityf" property="cityf" jdbcType="VARCHAR" />
+		<result column="hometown" property="hometown" jdbcType="VARCHAR" />
+		<result column="career" property="career" jdbcType="VARCHAR" />
+		<result column="school" property="school" jdbcType="VARCHAR" />
+		<result column="schoolname" property="schoolname" jdbcType="VARCHAR" />
+		<result column="phone" property="phone" jdbcType="VARCHAR" />
+		<result column="user_type" property="user_type" jdbcType="VARCHAR" />
+		<result column="personality_tags" property="personality_tags"
+			jdbcType="VARCHAR" />
+		<result column="interested_tags" property="interested_tags"
+			jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+		<result column="register_date" property="register_date"
+			jdbcType="DATE" />
+		<result column="longitude" property="longitude" jdbcType="DOUBLE" />
+		<result column="dimension" property="dimension" jdbcType="DOUBLE" />
+		<result column="disabled_status" property="disabled_status"
+			jdbcType="VARCHAR" />
+		<result column="company" property="company" jdbcType="VARCHAR" />
+		<result column="starsign" property="starsign" jdbcType="VARCHAR" />
+		<result column="password_hx" property="password_hx" jdbcType="VARCHAR" />
+		<result column="activity_time" property="activity_time"
+			jdbcType="DATE" />
+		<result column="app_status" property="app_status" jdbcType="VARCHAR" />
+		<result column="superman" property="superman" jdbcType="INTEGER" />
+		<result column="today_num" property="today_num" jdbcType="INTEGER" />
+		<result column="total_num" property="total_num" jdbcType="INTEGER" />
+		<result column="last_visit_date" property="last_visit_date"
+			jdbcType="DATE" />
+	</resultMap>
+	<!-- 查询记录 -->
+	<select id="selectUserById" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select * from sys_user where id = #{id}
+	</select>
+	<select id="selectUserByCode" parameterType="int" resultMap="BaseResultMap">
+		select * from sys_user where code = #{code}
+	</select>
+	<select id="selectUserByLoginName" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT * FROM sys_user WHERE nickname = #{loginName} and user_type='admin'
+	</select>
+	<select id="checkPhone" parameterType="java.lang.String"
+		resultType="int">
+		SELECT count(*) FROM sys_user WHERE phone = #{phone}
+	</select>
+	<select id="selectCodeById" parameterType="java.lang.String"
+		resultType="int">
+		select code from sys_user where id = #{id}
+	</select>
+	<select id="selectIdByCode" parameterType="int" resultType="String">
+		select id from sys_user where code = #{code}
+	</select>
+	<select id="selectIdByPhone" parameterType="String" resultType="String">
+		select id from sys_user where phone = #{phone}
+	</select>
+	<select id="selectSexById" parameterType="String" resultType="String">
+		select sex from sys_user where id = #{id}
+	</select>
+	<select id="selectCodeByPhone" parameterType="String"
+		resultType="int">
+		select code from sys_user where phone = #{phone}
+	</select>
+	<select id="checkPhoneAndPwd" parameterType="java.lang.String"
+		resultType="String">
+		select (case password when #{password} then id else '0' end
+		) ret from sys_user where phone=#{phone}
+	</select>
+	<select id="selectAppStatus" parameterType="java.lang.String"
+		resultType="String">
+		select app_status from sys_user where id = #{id}
+	</select>
+	<!-- 判断biu币 -->
+	<select id="isEnough" parameterType="hashmap" resultType="String">
+		select
+		(case when virtual_currency >= #{vc} then '1' else '0' end)num from
+		sys_user where id=#{id}
+	</select>
+	<select id="selectVC" parameterType="java.lang.String"
+		resultType="int">
+		select virtual_currency from sys_user where id=#{id}
+	</select>
+
+	<!-- 更新updateUserInfo -->
+	<update id="updateUserInfo" parameterType="com.meetu.community.domain.User">
+		update sys_user
+		<set>
+			<if test="nickname != null">
+				nickname = #{nickname},
+			</if>
+			<if test="sex != null">
+				sex = #{sex},
+			</if>
+			<if test="birth_date != null">
+				birth_date = #{birth_date},
+			</if>
+			<if test="city != null">
+				city = #{city},
+			</if>
+			<if test="cityname != null">
+				cityname = #{cityname},
+			</if>
+			<if test="cityf != null">
+				cityf = #{cityf},
+			</if>
+			<if test="hometown != null">
+				hometown = #{hometown},
+			</if>
+			<if test="height != null">
+				height = #{height},
+			</if>
+			<if test="weight != null">
+				weight = #{weight},
+			</if>
+			<if test="isgraduated != null">
+				isgraduated = #{isgraduated},
+			</if>
+			<if test="career != null">
+				career = #{career},
+			</if>
+			<if test="school != null">
+				school = #{school},
+			</if>
+			<if test="schoolname != null">
+				schoolname = #{schoolname},
+			</if>
+			<if test="company != null">
+				company = #{company},
+			</if>
+			<if test="personality_tags != null">
+				personality_tags = #{personality_tags},
+			</if>
+			<if test="interested_tags != null">
+				interested_tags = #{interested_tags},
+			</if>
+			<if test="starsign != null">
+				starsign = #{starsign},
+			</if>
+			<if test="description != null">
+				description = #{description},
+			</if>
+			<if test="activity_time != null">
+				activity_time = #{activity_time},
+			</if>
+			<if test="total_num != null">
+				total_num = #{total_num},
+			</if>
+			<if test="today_num != null">
+				today_num = #{today_num},
+			</if>
+			<if test="last_visit_date != null">
+				last_visit_date = #{last_visit_date},
+			</if>
+			<if test="app_status != null">
+				app_status = #{app_status}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+</mapper>

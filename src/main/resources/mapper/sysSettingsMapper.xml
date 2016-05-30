@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meetu.community.mapper.SysSettingsMapper">
+    <resultMap id="settingsMap" type="com.meetu.community.domain.SysSettings">
+        <id column="id" property="id" jdbcType="VARCHAR" />
+        <result column="parameter" property="parameter" jdbcType="VARCHAR" />
+        <result column="value1" property="value1" jdbcType="INTEGER" />
+        <result column="value2" property="value2" jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+    </resultMap>
+    <!-- 根据keys查询 -->
+    <select id="selectDataByKey" parameterType="java.lang.String" resultMap="settingsMap">
+        select * from sys_settings where parameter = #{parameter}
+    </select>
+    
+    <!-- 插入对象 -->
+	<insert id="insertOper" >
+		insert into sys_settings (id,parameter,value1,value2,description) 
+			values (#{id},#{parameter},#{value1},#{value2},#{description})
+	</insert>
+	
+</mapper>

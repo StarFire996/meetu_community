@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meetu.community.mapper.MeetuFriendsRelMapper">
+<!--设置domain类和数据库中表的字段一一对应，注意数据库字段和domain类中的字段名称不致，此处一定要！-->
+    <resultMap id="friendsrelmap" type="com.meetu.community.domain.MeetuFriendsRel">
+        <id column="id" property="id" jdbcType="VARCHAR" />
+        <result column="user_id1" property="user_id1" jdbcType="VARCHAR" />
+        <result column="user_id2" property="user_id2" jdbcType="VARCHAR" />
+		<result column="date" property="date" jdbcType="DATE" />
+    </resultMap>
+    <select id="isFriends" parameterType="hashmap" resultMap="friendsrelmap">
+    	select * from meetu_friends_rel where user_id1=#{user_id1} and user_id2=#{user_id2}
+    </select>
+    <!-- 获取好友信息 -->
+    <select id="selectFriendsListByUserId" parameterType="String" resultType="hashmap">
+    	select
+			b.icon_url,
+			b.sex,
+			b.code,
+			b.nickname,
+			b.birth_date,
+			b.isgraduated,
+			b.starsign,
+			b.school,
+			b.company,
+			b.career,
+			a.date
+		from
+			meetu_friends_rel a,
+			sys_user b
+		where
+			a.user_id2=b.id and a.user_id1=#{userid}
+		group by a.user_id2
+		order by
+			a.date desc
+    </select>
+    
+     <!-- 获取好友信息 -->
+    <select id="selectFriendsCodeListByUserId" parameterType="String" resultType="Integer">
+    	select
+			b.code
+		from
+			meetu_friends_rel a,
+			sys_user b
+		where
+			a.user_id2=b.id and a.user_id1=#{userid}
+		group by a.user_id2
+
+    </select>
+    
+    
+    
+    <!-- 插入对象 -->
+	<insert id="insertOper" >
+		insert into meetu_friends_rel (id,user_id1,user_id2,date) 
+			values (#{id},#{user_id1},#{user_id2},#{date})
+	</insert>
+	<delete id="deleteByUserIds" parameterType="String">
+		delete from meetu_friends_rel where (user_id1=#{user_id1} and user_id2=#{user_id2}) or (user_id1=#{user_id2} and user_id2=#{user_id1})
+	</delete>
+</mapper>

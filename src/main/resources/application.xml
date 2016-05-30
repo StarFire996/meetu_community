@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="  
+           http://www.springframework.org/schema/beans  
+           http://www.springframework.org/schema/beans/spring-beans-4.2.xsd  
+           http://www.springframework.org/schema/aop  
+           http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+           http://www.springframework.org/schema/context  
+           http://www.springframework.org/schema/context/spring-context-4.2.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+           http://www.springframework.org/schema/task
+    	   http://www.springframework.org/schema/task/spring-task-4.2.xsd">
+
+     <!-- 引入jdbc,redis配置文件 -->  
+     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+     	<!-- 允许JVM参数覆盖 -->
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<!-- 忽略没有找到的资源文件 -->
+		<property name="ignoreResourceNotFound" value="true" />
+        <property name="locations">
+            <list>
+               <value>classpath:properties/*.properties</value>
+               <value>classpath:http.properties</value>
+                <!--要是有多个配置文件，只需在这里继续添加即可 -->
+            </list>
+        </property>
+    </bean>
+    
+    <!-- 配置数据源 
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        	不使用properties来配置
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" /> 
+            <property name="url" value="jdbc:mysql://localhost:3306/learning" /> 
+            <property name="username" value="root" /> 
+            <property name="password" value="christmas258@" />
+      	 使用properties来配置 
+        <property name="driverClassName"><value>${jdbc_driverClassName}</value></property>
+        <property name="url"><value>${jdbc_url}</value></property>
+        <property n
+        ame="username"><value>${jdbc_username}</value></property>
+        <property name="password"><value>${jdbc_password}</value></property>
+    </bean>
+    -->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="${jdbc_driverClassName}"/>
+        <property name="url" value="${jdbc_url}"/>
+        <property name="username" value="${jdbc_username}"/>
+        <property name="password" value="${jdbc_password}"/>
+		<property name="initialSize" value="${jdbc_initialSize}" />
+		<property name="maxIdle" value="${jdbc_maxIdle}" />
+        <property name="minIdle" value="${jdbc_minIdle}" />
+        <property name="minEvictableIdleTimeMillis" value="${jdbc_minEvictableIdleTimeMillis}" />
+        <property name="timeBetweenEvictionRunsMillis" value="${jdbc_timeBetweenEvictionRunsMillis}" />
+    </bean>
+    
+    
+    <!-- 配置Mybatis的文件 ，mapperLocations配置**Mapper.xml文件位置，configLocation配置mybatis-config文件位置-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>  
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />
+    </bean>
+    <!-- 自动扫描组件，这里要把controler下面的 controller去除，他们是在spring3-servlet.xml中配置的，如果不去除会影响事务管理的。   -->  
+	<context:component-scan base-package="com.meetu.*" use-default-filters="false">  
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" /> 
+ 	</context:component-scan> 
+    <task:annotation-driven/>
+
+    <!-- 事务控制 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">    
+        <property name="dataSource" ref="dataSource" />    
+    </bean> 
+ 	<tx:advice id="txAdvice" transaction-manager="transactionManager"> 
+ 		<tx:attributes> 
+ 			<tx:method name="del*" propagation="REQUIRED" />
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="insert*" propagation="REQUIRED" /> 
+			<tx:method name="remove*" propagation="REQUIRED" />
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="query*" read-only="true" /> 
+			<tx:method name="*" read-only="true" rollback-for="Exception"/>  
+ 		</tx:attributes> 
+ 	</tx:advice> 
+ 	<tx:annotation-driven transaction-manager="transactionManager"/>
+     <!-- spring declarative transaction management --> 
+ 	<aop:config> 
+ 		<aop:pointcut id="fooServiceMethods" 
+ 		expression="execution(* com.*.service.*.*(..))"/>  
+ 		<aop:advisor advice-ref="txAdvice" pointcut-ref="fooServiceMethods"/>  
+ 	</aop:config> 
+    
+
+    <!-- 自动扫描了所有的XxxxMapper.xml对应的mapper接口文件，这样就不用一个一个手动配置Mpper的映射了，只要Mapper接口类和Mapper映射文件对应起来就可以了。 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.meetu.*.mapper" />
+    </bean>
+
+   
+
+    <!-- 自动扫描注解的bean -->
+    <context:component-scan base-package="com.meetu.*" /> 
+    
+    <!--Redis配置-->   
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+	</bean>
+	<bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg index="0" ref="jedisPoolConfig"/>
+		<constructor-arg index="1" value="${redis.host}"/>
+		<constructor-arg index="2" value="${redis.port}" type="int"/>
+		<constructor-arg index="3" value="${redis.timeout}" type="int"/>
+		<constructor-arg index="4" value="${redis.password}"/>
+	</bean>
+	<!--管理验证信息的bean
+	<bean id="tokenManager" class="com.meetu.authorization.manager.impl.RedisTokenManager">
+	       Token失效时间
+	       <property name="tokenExpireSeconds" value="3600" />
+	       Redis客户端
+	       <property name="jedisPool" ref="jedisPool" />
+	</bean> -->
+	<!-- 2016-3-31 -->
+	<!-- jdbcTemplate 
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+	<bean id="dbUtilsTemplate" class="com.meetu.core.db.DbUtilsTemplate"> 
+		<property name="dataSource" ref="dataSource" />
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<property name="jdbcUser"><value>${jdbc_username}</value></property>
+	</bean>-->
+	<!-- Service Dao 
+	<bean id="serviceDao" class="com.meetu.core.ibatis.ServiceDao">
+		<property name="dbUtilsTemplate" ref="dbUtilsTemplate"/>
+	</bean>-->
+
+	<!-- [master:] sql session template 
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+		<constructor-arg index="1" value="BATCH" />
+	</bean>-->
+	<!--  [slave:] sql session template 
+	<bean id="slaveSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+		<constructor-arg index="1" value="BATCH" />
+	</bean>
+	-->
+</beans>
