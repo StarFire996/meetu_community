@@ -8,6 +8,7 @@
 		<result column="content" property="content" jdbcType="VARCHAR" />
 		<result column="level" property="level" jdbcType="INTEGER" />
 		<result column="post_num" property="postNum" jdbcType="INTEGER" />
+		<result column="length" property="length" jdbcType="INTEGER" />
 		<result column="create_at" property="createAt" jdbcType="DATE" />
 	</resultMap>
 	<!-- 查询记录 -->
@@ -20,6 +21,7 @@
 	<select id="selectTagsListByName" parameterType="string" resultMap="BaseResultMap">
 		select id content
 		from iu_community_tags where content like '%${value}%' limit 30
+		order by length desc
 	</select>
 	
 	<!-- 查询推荐 -->
@@ -60,9 +62,9 @@
 	<insert id="insertTag" useGeneratedKeys="true" keyProperty="id"
 		parameterType="com.meetu.community.domain.Tags">
 		insert into iu_community_tags
-		(content,level,post_num,create_at)
+		(content,level,post_num,length,create_at)
 		values
-		(#{content},#{level},#{postNum},#{createAt})
+		(#{content},#{level},#{postNum},#{length},#{createAt})
 	</insert>
 
 	<!-- 更新updateUserInfo -->

@@ -51,7 +51,7 @@ public class TagsServiceImpl implements TagsService{
 		for (Tags tags : list) {
 			JSONObject jsonOb = new JSONObject();
 			jsonOb.put("id", tags.getId());
-			jsonOb.put("conteng",tags.getContent());
+			jsonOb.put("content",tags.getContent());
 			jsonArray.add(jsonOb);
 		}
 	}

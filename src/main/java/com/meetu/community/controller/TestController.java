@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.meetu.community.domain.Activity;
-import com.meetu.community.domain.Biu;
+import com.meetu.community.domain.ComBiu;
 import com.meetu.community.domain.Notify;
 import com.meetu.community.domain.Post;
 import com.meetu.community.domain.Praise;
 import com.meetu.community.domain.Report;
 import com.meetu.community.domain.Tags;
 import com.meetu.community.service.ActivityService;
-import com.meetu.community.service.BiuService;
+import com.meetu.community.service.ComBiuService;
 import com.meetu.community.service.NotifyService;
 import com.meetu.community.service.PostService;
 import com.meetu.community.service.PraiseService;
@@ -45,7 +45,7 @@ public class TestController {
 	private NotifyService notifyService;
 	
 	@Autowired
-	private BiuService biuService;
+	private ComBiuService biuService;
 	
 	@Autowired
 	private ActivityService activityService;
@@ -126,8 +126,8 @@ public class TestController {
 	}
 	
 	@RequestMapping(value="run8",method=RequestMethod.POST)
-	public ResponseEntity<Biu> run8() throws Exception{
-		Biu biu = new Biu();
+	public ResponseEntity<ComBiu> run8() throws Exception{
+		ComBiu biu = new ComBiu();
 		biu.setCreateAt(new Timestamp(System.currentTimeMillis()));
 		biu.setIsRead(0);
 		biu.setStatus(0);
@@ -136,11 +136,11 @@ public class TestController {
 		this.biuService.insertBiu(biu);
 		return ResponseEntity.ok(biu);
 	}
-	@RequestMapping(value="run9",method=RequestMethod.POST)
-	public ResponseEntity<Integer> run9() throws Exception{
-		List<Biu> list = this.biuService.selectBiuByUserCode(12880);
-		return ResponseEntity.ok(list.size());
-	}
+//	@RequestMapping(value="run9",method=RequestMethod.POST)
+//	public ResponseEntity<Integer> run9() throws Exception{
+//		List<Biu> list = this.biuService.selectBiuByUserCode(12880);
+//		return ResponseEntity.ok(list.size());
+//	}
 	@RequestMapping(value="run10",method=RequestMethod.POST)
 	public ResponseEntity<Void> run10() throws Exception{
 		this.biuService.setBiuRead(12880);
@@ -148,7 +148,7 @@ public class TestController {
 	}
 	@RequestMapping(value="run11",method=RequestMethod.POST)
 	public ResponseEntity<Void> run11() throws Exception{
-		Biu biu = new Biu();
+		ComBiu biu = new ComBiu();
 		biu.setUserCodeMine(12880);
 		biu.setUserCodeGrab(12334);
 		biu.setStatus(1);

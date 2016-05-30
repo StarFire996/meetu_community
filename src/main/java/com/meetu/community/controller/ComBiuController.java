@@ -18,25 +18,78 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.meetu.community.domain.ComBiu;
 import com.meetu.community.domain.Notify;
-import com.meetu.community.service.NotifyService;
+import com.meetu.community.domain.Post;
+import com.meetu.community.service.ComBiuService;
 import com.meetu.community.service.UserService;
 
 @Controller
-@RequestMapping("app/community/notify")
-public class NotifyController {
-	
-	public static Logger LOGGER = LoggerFactory.getLogger(NotifyController.class);
-	
+@RequestMapping("app/community/combiu")
+public class ComBiuController {
+
+	public static Logger LOGGER = LoggerFactory.getLogger(ComBiuController.class);
+
 	@Autowired
-	private NotifyService notifyService;
+	private ComBiuService biuService;
 	
 	@Autowired
 	private UserService userService;
+
+	// 抢一条biu
+	@RequestMapping(value = "grabComBiu", method = RequestMethod.POST)
+	public ResponseEntity<JSONObject> grabComBiu(HttpServletRequest request,
+			@RequestParam("data") String jsonData) {
+		JSONObject json = new JSONObject();
+		JSONObject json2 = new JSONObject();
+		Map<String, Object> debugMap = new HashMap<String, Object>();
+		try {
+			// 请求参数获取
+			JSONObject data = JSONObject.parseObject(jsonData);
+			String newToken = (String) request.getAttribute("token");
+			String userId = (String) request.getAttribute("userid");
+			//被抢用户的code
+			Integer userTo = data.getInteger("userCode");
+
+			json2.put("token", newToken);
+			debugMap.put("userId", userId);
+			debugMap.put("userTo", userTo);
+
+			Integer userFrom = this.userService.selectCodeById(userId);
+			
+			//userFrom = 12880;
+			
+			ComBiu biu = new ComBiu();
+			biu.setCreateAt(new Timestamp(System.currentTimeMillis()));
+			biu.setIsRead(0);
+			biu.setStatus(0);
+			biu.setUserCodeGrab(userFrom);
+			biu.setUserCodeMine(userTo);
+			
+			this.biuService.insertBiu(biu);
+
+			json.put("data", json2);
+			json.put("state", "200");
+
+			debugMap.put("json", json);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("sendComBiu:{}", debugMap);
+			}
+
+			return ResponseEntity.ok(json);
+		} catch (Exception e) {
+			json.put("state", "300");
+			json.put("error", e.getMessage());
+			if (LOGGER.isErrorEnabled()) {
+				LOGGER.error("sendComBiu_err:{}", e.getMessage());
+			}
+		}
+		return ResponseEntity.ok(json);
+	}
 	
-	// 获取自己的全部通知
-	@RequestMapping(value = "getNotifyList", method = RequestMethod.POST)
-	public ResponseEntity<JSONObject> getNotifyList(
+    // 获取抢我的人的列表
+	@RequestMapping(value = "getComBiuList", method = RequestMethod.POST)
+	public ResponseEntity<JSONObject> getComBiuList(
 			HttpServletRequest request, @RequestParam("data") String jsonData) {
 		JSONObject json = new JSONObject();
 		JSONObject json2 = new JSONObject();
@@ -53,42 +106,43 @@ public class NotifyController {
 			debugMap.put("time", time);
 
 			Integer userFrom = this.userService.selectCodeById(userId);
-//			userFrom = 12880;
 			
-			List<Notify> notifyList = null;
+			userFrom =12880;
+			
+			List<ComBiu> biuList = null;
 			Timestamp timestamp = null;
 			if (time == 0) {
 				// 第一次查询
 				timestamp = new Timestamp(System.currentTimeMillis());
-				//将该时间点之前的全部通知设置为已读
-				this.notifyService.setNotifyRead(userFrom);
+				//将本次时间点之前的全部biu设为已读
+				this.biuService.setBiuRead(userFrom);
 			} else {
 				// 加载更多
 				timestamp = new Timestamp(time * 1000);
 			}
-					
-			JSONArray notifyArr = new JSONArray();
-			notifyList = this.notifyService.getNotifyList(userFrom,timestamp,notifyArr);
-			if (notifyList != null && notifyList.size()>0) {
-				time = notifyList.get(notifyList.size() - 1).getCreateAt().getTime() / 1000;
-				if (notifyList.size() > 10) {
+			biuList = this.biuService.selectMyBiuList(userFrom,timestamp);
+			
+			JSONArray postArray = new JSONArray();
+			if (biuList != null && biuList.size() > 0) {
+				this.biuService.parseBiuToJson(biuList, postArray);
+				time = biuList.get(biuList.size() - 1).getCreateAt().getTime() / 1000;
+				if (biuList.size() > 30) {
 					json2.put("hasNext", 1);
 				} else {
 					json2.put("hasNext", 0);
 				}
-			}else{
+			} else {
 				json2.put("hasNext", 0);
 			}
-			
 			json2.put("time", time);
-			json2.put("notifies", notifyArr);
-			
+			json2.put("postList", postArray);
+
 			json.put("data", json2);
 			json.put("state", "200");
 
 			debugMap.put("json", json);
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("getNotifyList:{}", debugMap);
+				LOGGER.info("getPostListByTag:{}", debugMap);
 			}
 
 			return ResponseEntity.ok(json);
@@ -96,46 +150,7 @@ public class NotifyController {
 			json.put("state", "300");
 			json.put("error", e.getMessage());
 			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("getNotifyList_err:{}", e.getMessage());
-			}
-		}
-		return ResponseEntity.ok(json);
-	}
-	
-	// 获取自己的全部通知
-	@RequestMapping(value = "deletNotifies", method = RequestMethod.POST)
-	public ResponseEntity<JSONObject> deletNotifies(
-			HttpServletRequest request, @RequestParam("data") String jsonData) {
-		JSONObject json = new JSONObject();
-		JSONObject json2 = new JSONObject();
-		Map<String, Object> debugMap = new HashMap<String, Object>();
-		try {
-			// 请求参数获取
-			JSONObject data = JSONObject.parseObject(jsonData);
-			String newToken = (String) request.getAttribute("token");
-			String userId = (String) request.getAttribute("userid");
-
-			json2.put("token", newToken);
-			debugMap.put("userId", userId);
-
-			Integer userFrom = this.userService.selectCodeById(userId);
-			//userFrom = 12880;
-			
-			this.notifyService.deleteNotifyByUserTo(userFrom);
-			json.put("data", json2);
-			json.put("state", "200");
-
-			debugMap.put("json", json);
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("deletNotifies:{}", debugMap);
-			}
-
-			return ResponseEntity.ok(json);
-		} catch (Exception e) {
-			json.put("state", "300");
-			json.put("error", e.getMessage());
-			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("deletNotifies_err:{}", e.getMessage());
+				LOGGER.error("getPostListByTag_err:{}", e.getMessage());
 			}
 		}
 		return ResponseEntity.ok(json);

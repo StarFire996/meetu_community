@@ -79,15 +79,14 @@ public class PostController {
 			post.setCreateAt(new Timestamp(System.currentTimeMillis()));
 			post.setCreateBy(user.getCode());
 
-//			post.setCreateBy(10119);
+			//post.setCreateBy(10119);
 
-			post.setImgs(imgs);
 			post.setLevel(0);
 			post.setMusic(music);
 			post.setPraiseNum(0);
 			post.setType(type);
 
-			this.postService.savePost(post, tags);
+			this.postService.savePost(post, tags,imgs);
 
 			json.put("data", json2);
 			json.put("state", "200");
@@ -129,7 +128,9 @@ public class PostController {
 			debugMap.put("time", time);
 
 			Integer userFrom = this.userService.selectCodeById(userId);
-			// Integer userFrom =12880;
+			
+			//userFrom =12880;
+			
 			List<Post> list = null;
 
 			if (time == 0) {
@@ -196,7 +197,7 @@ public class PostController {
 			debugMap.put("time", time);
 
 			Integer userFrom = this.userService.selectCodeById(userId);
-//			Integer userFrom =12880;
+//			userFrom =12880;
 //			userId="1511751ce0eb46dd9fd1f87b49949ee0";
 			
 			List<Post> postList = null;
@@ -287,7 +288,7 @@ public class PostController {
 			debugMap.put("time", time);
 
 			Integer userFrom = this.userService.selectCodeById(userId);
-			userFrom =12880;
+			//userFrom =12880;
 //			userId="1511751ce0eb46dd9fd1f87b49949ee0";
 			
 			
@@ -303,7 +304,9 @@ public class PostController {
 
 			Post post = this.postService.selectPostById(postId);
 			
-			this.postService.parsePostToJson(userFrom, post, json2);
+			JSONObject postJson = new JSONObject();
+			
+			this.postService.parsePostToJson(userFrom, post, postJson);
 			
 			comList = this.commentService.selectCommontByPostId(postId,timestamp);
 			
@@ -321,6 +324,9 @@ public class PostController {
 				json2.put("hasNext", 0);
 
 			}
+			
+			json2.put("post", postJson);
+			
 			json2.put("time", time);
 			json2.put("commentList", comArray);
 

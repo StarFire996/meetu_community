@@ -2,7 +2,7 @@ package com.meetu.community.domain;
 
 import java.sql.Timestamp;
 
-public class Biu {
+public class ComBiu {
 	
 	private Integer id;
 	private Integer userCodeMine;

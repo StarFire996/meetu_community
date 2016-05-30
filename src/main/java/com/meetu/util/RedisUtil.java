@@ -485,11 +485,7 @@ public class RedisUtil {
 	// 根据userCode从缓存中获取user对象
 	public static User getUserByCode(Integer userCode) {
 		User user = null;
-		Jedis jedis = getJedis();
-		if (jedis == null) {
-			return null;
-		}
-		String userJsonData = jedis.get(String.valueOf(userCode));
+		String userJsonData = getString(String.valueOf(userCode));
 		if (StringUtils.isNotBlank(userJsonData)) {
 			user = JSONObject.parseObject(userJsonData, User.class);
 		}
@@ -497,12 +493,11 @@ public class RedisUtil {
 	}
 	//以userCode为Key将user信息设置到缓存中
 	public static void setUserByCode(User user){
-		Jedis jedis = getJedis();
-		if (jedis != null && user !=null) {
+		if (user !=null) {
 			user.setPassword("");
 			Integer code = user.getCode();
 			String userJsonData = JSONObject.toJSONString(user);
-			jedis.set(String.valueOf(code), userJsonData);
+			setString(String.valueOf(code), userJsonData);
 		}
 	}
 

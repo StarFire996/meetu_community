@@ -13,7 +13,7 @@ public interface PostService {
 	
 	public Post selectPostById(Integer id);
 
-	public void savePost(Post post, String tags);
+	public void savePost(Post post, String tags, String imgs);
 	
 	public List<Post> selectPostListByTagId(Timestamp createAt,Integer tagId);
 

@@ -91,7 +91,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void updateIcon(User user) throws Exception {
-		// TODO Auto-generated method stub
 		userDao.updateIcon(user);
 	}
 
@@ -99,21 +98,18 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<Map<String, Object>> selectBiu(Map<String, Object> map)
 			throws Exception {
-		// TODO Auto-generated method stub
 		return userDao.selectBiu(map);
 	}
 
 
 	@Override
 	public void updateLocation(User user) throws Exception {
-		// TODO Auto-generated method stub
 		userDao.updateLocation(user);
 	}
 
 
 	@Override
 	public void addVC(User user) throws Exception {
-		// TODO Auto-generated method stub
 		userDao.addVC(user);
 	}
 	//判断用户biu币是否充足，比发biu消耗的biu币多返回true，否则返回false

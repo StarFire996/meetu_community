@@ -8,9 +8,16 @@ public class Tags {
 	private String content;
 	private Integer level;
 	private Integer postNum;
+	private Integer length;
 	private Timestamp createAt;
 	public Integer getId() {
 		return id;
+	}
+	public Integer getLength() {
+		return length;
+	}
+	public void setLength(Integer length) {
+		this.length = length;
 	}
 	public void setId(Integer id) {
 		this.id = id;

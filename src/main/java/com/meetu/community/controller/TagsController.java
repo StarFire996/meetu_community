@@ -9,6 +9,7 @@ import javassist.expr.NewArray;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,13 @@ public class TagsController {
 			tags.setCreateAt(new Timestamp(System.currentTimeMillis()));
 			tags.setLevel(0);
 			tags.setPostNum(0);
-			this.tagsService.insertTag(tags);
+			if (StringUtils.isNotBlank(content)) {
+				tags.setLength(content.length());
+			}else{
+				tags.setLength(0);
+			}
 			
+			this.tagsService.insertTag(tags);
 			
 			json2.put("tagId", tags.getId());
 			json.put("data", json2);

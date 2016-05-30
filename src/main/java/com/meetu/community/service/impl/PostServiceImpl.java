@@ -13,12 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.meetu.community.domain.Image;
 import com.meetu.community.domain.Post;
 import com.meetu.community.domain.Praise;
 import com.meetu.community.domain.Tags;
 import com.meetu.community.domain.User;
 import com.meetu.community.mapper.PostMapper;
 import com.meetu.community.service.CommentService;
+import com.meetu.community.service.ImageService;
 import com.meetu.community.service.MeetuFriendsRelService;
 import com.meetu.community.service.NotifyService;
 import com.meetu.community.service.PostService;
@@ -55,6 +57,9 @@ public class PostServiceImpl implements PostService {
 
 	@Autowired
 	private CommentService commentService;
+	
+	@Autowired
+	private ImageService imageService;
 
 	public void updatePost(Post post) {
 		this.postMapper.updatePost(post);
@@ -64,9 +69,25 @@ public class PostServiceImpl implements PostService {
 		return this.postMapper.selectPostById(id);
 	}
 
-	public void savePost(Post post, String tags) {
-		this.postMapper.insertPost(post);
-
+	public void savePost(Post post, String tags, String imgs) {
+		//解析图片数据,向图片库插入数据,将id以,拼接
+		StringBuilder sb = new StringBuilder("");
+		if (StringUtils.isNotBlank(imgs)) {
+			JSONArray parseArray = JSONObject.parseArray(imgs);
+			for (int i = 0; i < parseArray.size(); i++) {
+				JSONObject img = (JSONObject) parseArray.get(i);
+				Image image = new Image();
+				image.setDesc(img.getString("desc"));
+				image.setExten(img.getString("exten"));
+				image.setHight(img.getInteger("h"));
+				image.setWeight(img.getInteger("w"));
+				image.setUrl(img.getString("url"));
+				imageService.insertImage(image);
+				sb.append(image.getId()).append(",");
+			}
+			post.setImgs(sb.toString());
+		}
+		//解析tag数组
 		if (StringUtils.isNotBlank(tags)) {
 			List<Integer> tagIds = JSONObject.parseArray(tags, Integer.class);
 			for (Integer tagId : tagIds) {
@@ -78,6 +99,7 @@ public class PostServiceImpl implements PostService {
 				this.tagsAndPostService.insertPost(post.getId(), tagId);
 			}
 		}
+		this.postMapper.insertPost(post);
 	}
 
 	// 根据帖子id查询帖子
@@ -104,7 +126,11 @@ public class PostServiceImpl implements PostService {
 			jsonObject.put("userHead", userHead);
 			jsonObject.put("userSchool", userSchool);
 			jsonObject.put("createAt", post.getCreateAt().getTime() / 1000);
-			jsonObject.put("imgs", post.getImgs());
+			
+			JSONArray imgArray = new JSONArray();
+			this.imageService.parseImgToJson(imgArray,post.getImgs());
+			
+			jsonObject.put("imgs", imgArray);
 			jsonObject.put("content", post.getContent());
 			jsonObject.put("praiseNum", post.getPraiseNum());
 			jsonObject.put("commentNum", post.getCommentNum());
@@ -132,10 +158,12 @@ public class PostServiceImpl implements PostService {
 		String userName = user.getNickname();
 		String userHead = StsService.generateCircleUrl(user.getIcon_url());
 		String userSchool = user.getSchool();
+		String userSex = user.getSex();
 		json2.put("userCode", userCode);
 		json2.put("userName", userName);
 		json2.put("userHead", userHead);
 		json2.put("userSchool", userSchool);
+		json2.put("userSex", userSex);
 		json2.put("createAt", post.getCreateAt().getTime() / 1000);
 		json2.put("imgs", post.getImgs());
 		json2.put("content", post.getContent());
@@ -189,8 +217,13 @@ public class PostServiceImpl implements PostService {
 		this.commentService.deleteCommentByPostId(postId);
 		// 删除帖子/标签中间表数据
 		this.tagsAndPostService.deleteTagsAndPostByPostId(postId);
+		// 删除帖子中的图片数据
+		Post post = this.postMapper.selectPostById(postId);
+		String imgs = post.getImgs();
+		this.imageService.deleteImage(imgs);
 		// 删除帖子
 		this.postMapper.deletePostById(postId);
 	}
+
 
 }

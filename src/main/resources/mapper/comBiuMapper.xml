@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.meetu.community.mapper.BiuMapper">
+<mapper namespace="com.meetu.community.mapper.ComBiuMapper">
 	<!--设置domain类和数据库中表的字段一一对应，注意数据库字段和domain类中的字段名称不致，此处一定要！ -->
-	<resultMap id="BaseResultMap" type="com.meetu.community.domain.Biu">
+	<resultMap id="BaseResultMap" type="com.meetu.community.domain.ComBiu">
 		<id column="id" property="id" jdbcType="INTEGER" />
 		<result column="user_code_mine" property="userCodeMine" jdbcType="INTEGER" />
 		<result column="user_code_grab" property="userCodeGrab" jdbcType="INTEGER" />
@@ -12,18 +12,22 @@
 		<result column="create_at" property="createAt" jdbcType="DATE" />
 	</resultMap>
 	<!-- 查询记录 -->
-	<select id="selectBiuByUserCode" parameterType="int" resultMap="BaseResultMap">
-		select * from iu_community_combiu where user_code_mine = #{userCodeMine}
+	<select id="selectBiuByUserCodeMine" parameterType="hashmap" resultMap="BaseResultMap">
+		select * from 
+			iu_community_combiu 
+		where 
+			user_code_mine = #{userCodeMine} and create_at &lt; #{timestamp}
+		order by create_at desc limit 30
 	</select>
 	
 	<!-- 查询记录 -->
-	<select id="selectBiuUnRead" parameterType="int" resultType="int">
+	<select id="selectBiuNumUnRead" parameterType="int" resultType="int">
 		select count(*) from iu_community_combiu where user_code_mine = #{userCodeMine} and is_read = 0 group by user_code_mine
 	</select>
 
 
 	<insert id="insertBiu" useGeneratedKeys="true" keyProperty="id"
-		parameterType="com.meetu.community.domain.Biu">
+		parameterType="com.meetu.community.domain.ComBiu">
 		insert into iu_community_combiu
 		(user_code_mine,user_code_grab,status,is_read,create_at)
 		values
@@ -31,7 +35,7 @@
 	</insert>
 	
 	<!-- 接受biu -->
-	<update id="acceptBiu" parameterType="com.meetu.community.domain.Biu">
+	<update id="acceptBiu" parameterType="com.meetu.community.domain.ComBiu">
 		update iu_community_combiu
 			set status = #{status}
 		where user_code_mine=#{userCodeMine} and user_code_grab=#{userCodeGrab}

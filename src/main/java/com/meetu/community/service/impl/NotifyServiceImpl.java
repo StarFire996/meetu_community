@@ -35,8 +35,6 @@ public class NotifyServiceImpl implements NotifyService{
 		if (list != null && list.size()>0) {
 			this.parseNotifyToJson(list,notifyArr);
 		}
-		//将该用户的消息都置为已读
-		this.notifyMapper.setNotifyRead(userCode);
 		return this.notifyMapper.selectNotifyByUserTo(map);
 	}
 

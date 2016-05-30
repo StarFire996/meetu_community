@@ -31,7 +31,7 @@
     <context:annotation-config />
     
  
-    <!--  
+    <!-- 登录拦截器  
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<mvc:mapping path="/app/**" />
@@ -41,5 +41,5 @@
 		</mvc:interceptor>
 		
 	</mvc:interceptors>
-     -->
+    -->
 </beans>

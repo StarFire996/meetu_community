@@ -96,15 +96,21 @@ public class CommentServiceImpl implements CommentService{
 			User userFrom =this.userService.selectUserByCode(userFromCode);
 			String userFromName = userFrom.getNickname();
 			String userFromHead = StsService.generateCircleUrl(userFrom.getIcon_url());
+			String userFromSchool = userFrom.getSchool();
+			String userFromSex = userFrom.getSex();
 			jsonObject.put("userFromCode", userFromCode);
 			jsonObject.put("userFromName", userFromName);
 			jsonObject.put("userFromHead", userFromHead);
+			jsonObject.put("userFromSchool", userFromSchool);
+			jsonObject.put("userFromSex", userFromSex);
 			
 			Integer userToCode = comment.getUserTo();
 			User userTo =this.userService.selectUserByCode(userToCode);
 			String userToName = userTo.getNickname();
+			String userToSex = userTo.getSex();
 			jsonObject.put("userToCode", userToCode);
 			jsonObject.put("userToName", userToName);
+			jsonObject.put("userToSex", userToSex);
 			jsonObject.put("content", comment.getContent());
 			jsonObject.put("createAt", comment.getCreateAt().getTime()/1000);
 			comArray.add(jsonObject);
