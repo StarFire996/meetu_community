@@ -11,9 +11,13 @@ public interface ComBiuMapper {
 	
 	public void insertBiu(ComBiu biu);
 	
-	public void acceptBiu(ComBiu biu);
+	public void acceptComBiu(HashMap<String, Object> map);
 	
 	public void setBiuRead(Integer userCodeMine);
 	
 	public Integer selectBiuNumUnRead(Integer userCodeMine);
+
+	public void deleteBiuByUserCode(Integer userCodeMine);
+	
+	public void acceptBiu(HashMap<String, Object> map);
 }

@@ -26,7 +26,7 @@ public class TagsAndPostServiceImpl implements TagsAndPostService{
 
 	@Override
 	public void deleteTagsAndPostByPostId(Integer postId) {
-		this.deleteTagsAndPostByPostId(postId);
+		this.tagsAndPostMapper.deleteTagsAndPost(postId);
 	}
 
 

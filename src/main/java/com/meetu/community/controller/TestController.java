@@ -152,7 +152,7 @@ public class TestController {
 		biu.setUserCodeMine(12880);
 		biu.setUserCodeGrab(12334);
 		biu.setStatus(1);
-		this.biuService.acceptBiu(biu);
+//		this.biuService.acceptBiu(biu);
 		return ResponseEntity.ok(null);
 	}
 	@RequestMapping(value="run12",method=RequestMethod.POST)

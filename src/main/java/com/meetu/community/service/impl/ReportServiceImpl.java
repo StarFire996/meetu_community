@@ -18,6 +18,7 @@ public class ReportServiceImpl implements ReportService{
 
 	@Override
 	public void insertReport(Report report) {
+		
 		this.reportMapper.insertReport(report);
 	}
 

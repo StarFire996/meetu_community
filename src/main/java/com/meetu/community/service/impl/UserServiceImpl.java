@@ -77,14 +77,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User selectUserByCode(Integer code) throws Exception {
-//		User user = RedisUtil.getUserByCode(code);
-//		if (user != null) {
-//			return user;
-//		}else{
-//			user = userDao.selectUserByCode(code);
-//			RedisUtil.setUserByCode(user);
-//		}
-		User user = this.userDao.selectUserByCode(code);
+		User user = RedisUtil.getUserByCode(code);
+		if (user != null) {
+			return user;
+		}else{
+			user = userDao.selectUserByCode(code);
+			RedisUtil.setUserByCode(user);
+		}
+//		User user = this.userDao.selectUserByCode(code);
 		return user;
 	}
 
@@ -128,7 +128,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public String selectIdByCode(Integer code) throws Exception {
-		// TODO Auto-generated method stub
 		return userDao.selectIdByCode(code);
 	}
 

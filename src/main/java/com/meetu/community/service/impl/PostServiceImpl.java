@@ -87,6 +87,7 @@ public class PostServiceImpl implements PostService {
 			}
 			post.setImgs(sb.toString());
 		}
+		this.postMapper.insertPost(post);
 		//解析tag数组
 		if (StringUtils.isNotBlank(tags)) {
 			List<Integer> tagIds = JSONObject.parseArray(tags, Integer.class);
@@ -99,7 +100,6 @@ public class PostServiceImpl implements PostService {
 				this.tagsAndPostService.insertPost(post.getId(), tagId);
 			}
 		}
-		this.postMapper.insertPost(post);
 	}
 
 	// 根据帖子id查询帖子
@@ -121,6 +121,8 @@ public class PostServiceImpl implements PostService {
 			String userName = user.getNickname();
 			String userHead = StsService.generateCircleUrl(user.getIcon_url());
 			String userSchool = user.getSchool();
+			String userSex = user.getSex();
+			jsonObject.put("userSex", userSex);
 			jsonObject.put("userCode", userCode);
 			jsonObject.put("userName", userName);
 			jsonObject.put("userHead", userHead);
@@ -165,7 +167,11 @@ public class PostServiceImpl implements PostService {
 		json2.put("userSchool", userSchool);
 		json2.put("userSex", userSex);
 		json2.put("createAt", post.getCreateAt().getTime() / 1000);
-		json2.put("imgs", post.getImgs());
+		
+		JSONArray imgArray = new JSONArray();
+		this.imageService.parseImgToJson(imgArray,post.getImgs());
+		json2.put("imgs", imgArray);
+		
 		json2.put("content", post.getContent());
 		json2.put("praiseNum", post.getPraiseNum());
 		json2.put("commentNum", post.getCommentNum());

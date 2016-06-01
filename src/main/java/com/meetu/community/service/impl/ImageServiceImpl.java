@@ -17,6 +17,8 @@ public class ImageServiceImpl implements ImageService {
 
 	@Autowired
 	private ImageMapper imageMapper;
+	
+	private static String IMG_URL="http://protect-app.img-cn-beijing.aliyuncs.com/";
 
 	public void insertImage(Image image) {
 		this.imageMapper.insertImage(image);
@@ -38,9 +40,11 @@ public class ImageServiceImpl implements ImageService {
 				JSONObject jsonObject = new JSONObject();
 				Image image = this.imageMapper.selectImageById(Integer
 						.parseInt(imgId));
-				jsonObject.put("url", image.getUrl());
-				jsonObject.put("w", image.getWeight());
-				jsonObject.put("h", image.getHight());
+				if (image!=null) {
+					jsonObject.put("url", IMG_URL+image.getUrl());
+					jsonObject.put("w", image.getWeight());
+					jsonObject.put("h", image.getHight());
+				}
 				imgArray.add(jsonObject);
 			}
 		}

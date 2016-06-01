@@ -18,4 +18,6 @@ public interface NotifyMapper {
 	public void deleteNotifyByPostId(Integer postId);
 	
 	public void deleteNotifyByUserTo(Integer userTo);
+
+	public Integer selectNotifyUnRead(Integer userFrom);
 }

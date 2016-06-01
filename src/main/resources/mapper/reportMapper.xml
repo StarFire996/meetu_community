@@ -21,4 +21,12 @@
 		(#{postId},#{commentId},#{userFrom},#{userTo},#{createAt})
 	</insert>
 	
+	<select id="selectReort" parameterType="com.meetu.community.domain.Report" resultMap="BaseResultMap">
+		select * from iu_community_report where post_id = #{postId}
+			<if test="commentId != null">
+				and comment_id = #{commentId}
+			</if>
+			and user_from =#{userFrom} and user_to = #{userTo}
+	</select>
+	
 </mapper>

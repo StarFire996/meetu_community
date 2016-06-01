@@ -81,5 +81,9 @@ public class NotifyServiceImpl implements NotifyService{
 	public void deleteNotifyByUserTo(Integer userTo) {
 		this.notifyMapper.deleteNotifyByUserTo(userTo);
 	}
+
+	public Integer selectNotifyUnRead(Integer userFrom) {
+		return this.notifyMapper.selectNotifyUnRead(userFrom);
+	}
 	
 }

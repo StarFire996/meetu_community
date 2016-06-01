@@ -34,12 +34,20 @@
 		(#{userCodeMine},#{userCodeGrab},#{status},#{isRead},#{createAt})
 	</insert>
 	
-	<!-- 接受biu -->
-	<update id="acceptBiu" parameterType="com.meetu.community.domain.ComBiu">
+	<!-- 接受combiu -->
+	<update id="acceptComBiu" parameterType="hashmap">
 		update iu_community_combiu
-			set status = #{status}
+			set status = 1
 		where user_code_mine=#{userCodeMine} and user_code_grab=#{userCodeGrab}
 	</update>
+	
+	<!-- 接受biu -->
+	<update id="acceptBiu" parameterType="hashmap">
+		update iu_biu_user_grabbiu
+			set status = 1
+		where iu_biu_id=(select id from iu_biu where created_by = #{userId}) and user_code=#{userCode}
+	</update>
+	
 	
 	<!-- 根据userCode将Biu置为已读 -->
 	<update id="setBiuRead" parameterType="int">
@@ -47,5 +55,9 @@
 			set is_read = 1
 		where user_code_mine=#{userCodeMine}
 	</update>
+	
+	<delete id="deleteBiuByUserCode" parameterType="int">
+		delete from iu_community_combiu where user_code_mine = #{userCodeMine}
+	</delete>
 
 </mapper>

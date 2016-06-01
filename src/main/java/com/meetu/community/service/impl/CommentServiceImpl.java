@@ -59,8 +59,8 @@ public class CommentServiceImpl implements CommentService{
 		
 		String imgs = post.getImgs();
 		if (StringUtils.isNotBlank(imgs)) {
-			JSONArray array = JSONObject.parseArray(imgs);
-			notify.setImgs(array.get(0).toString());
+			String[] imgs_ = imgs.split(",");
+			notify.setImgs(imgs_[0]);
 		}
 		this.notifyService.insertNotify(notify);
 		

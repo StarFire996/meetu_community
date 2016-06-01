@@ -48,6 +48,7 @@ public class TagsController {
 			
 			json2.put("token", newToken);
 			
+			
 			debugMap.put("content", content);
 			debugMap.put("userId", userId);
 			Tags tags = new Tags();
@@ -95,8 +96,10 @@ public class TagsController {
 			String newToken = (String) request.getAttribute("token");
 			String userId = (String) request.getAttribute("userid");
 			String searchStr = data.getString("searchStr");
+			Integer num = data.getInteger("num");
 			
 			json2.put("token", newToken);
+			json2.put("num", num);
 			
 			debugMap.put("searchStr", searchStr);
 			debugMap.put("userId", userId);
@@ -184,7 +187,6 @@ public class TagsController {
 				}else{
 					json2.put("hasNext", 0);
 				}
-				json2.put("time", time);
 				json2.put("new", newArray);
 			}else{//加载更多新鲜话题
 				Tags tags1 = new Tags();
@@ -204,10 +206,10 @@ public class TagsController {
 				}else{
 					json2.put("hasNext", 0);
 				}
-				json2.put("time", time);
 				json2.put("new", newArray);
 			}
-			
+			json2.put("time", time);
+			json2.put("postNum", postNum);
 			json.put("data", json2);
 			json.put("state", "200");
 			

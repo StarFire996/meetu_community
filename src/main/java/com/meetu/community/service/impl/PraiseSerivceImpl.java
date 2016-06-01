@@ -13,6 +13,7 @@ import com.meetu.community.domain.Notify;
 import com.meetu.community.domain.Post;
 import com.meetu.community.domain.Praise;
 import com.meetu.community.mapper.PraiseMapper;
+import com.meetu.community.service.ImageService;
 import com.meetu.community.service.NotifyService;
 import com.meetu.community.service.PostService;
 import com.meetu.community.service.PraiseService;
@@ -29,6 +30,9 @@ public class PraiseSerivceImpl implements PraiseService {
 	
 	@Autowired
 	private PostService postService;
+	
+	@Autowired
+	private ImageService imageService;
 
 
 	@Override
@@ -50,10 +54,10 @@ public class PraiseSerivceImpl implements PraiseService {
 	}
 
 	@Override
-	public void doPraise(Praise praise, Integer isPraise) {
+	public void doPraise(Praise praise) {
 		Post post = this.postService.selectPostById(praise.getPostId());
 		Praise praise2 = this.praiseMapper.selectPraiseByUserCodeAndPostId(praise);
-		if (1 == isPraise && praise2 == null) {// 动作为点赞,且赞不存在
+		if (praise2 == null) {// 动作为点赞,且赞不存在
 			//帖子点赞数加1
 			post.setPraiseNum(post.getPraiseNum()+1);
 			this.postService.updatePost(post);
@@ -73,11 +77,12 @@ public class PraiseSerivceImpl implements PraiseService {
 			notify.setUserTo(praise.getUserTo());
 			String imgs = post.getImgs();
 			if (StringUtils.isNotBlank(imgs)) {
-				JSONArray array = JSONObject.parseArray(imgs);
+				JSONArray array = new JSONArray();
+				this.imageService.parseImgToJson(array, imgs);
 				notify.setImgs(array.get(0).toString());
 			}
 			this.notifyService.insertNotify(notify);
-		} else if(0 == isPraise && praise2 != null) {// 动作为取消赞,且赞存在
+		} else if(praise2 != null) {// 动作为取消赞,且赞存在
 			//帖子点赞数减1
 			Integer praiseNum = post.getPraiseNum();
 			if (praiseNum >0) {

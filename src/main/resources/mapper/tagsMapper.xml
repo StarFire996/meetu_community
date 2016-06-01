@@ -19,19 +19,19 @@
 	
 	<!-- 模糊查询 -->
 	<select id="selectTagsListByName" parameterType="string" resultMap="BaseResultMap">
-		select id content
-		from iu_community_tags where content like '%${value}%' limit 30
-		order by length desc
+		select *
+		from iu_community_tags where content like '%${value}%' 
+		order by length asc limit 30
 	</select>
 	
 	<!-- 查询推荐 -->
 	<select id="selectTagsListByRec"  resultMap="BaseResultMap">
-		select id,content
+		select *
 		from iu_community_tags where level > 0 order by level desc
 	</select>
 	<!-- 查询热度 -->
 	<select id="selectTagsListByHot"  resultMap="BaseResultMap">
-		select id,content,post_num
+		select *
 		from iu_community_tags 
 		where level = 0 
 		order by post_num desc,create_at desc 
@@ -39,7 +39,7 @@
 	</select>
 	<!-- 查询新鲜 -->
 	<select id="selectTagsListByNew" parameterType="com.meetu.community.domain.Tags" resultMap="BaseResultMap">
-		select id,content,create_at
+		select *
 		from iu_community_tags 
 		where 
 			level = 0 
@@ -50,7 +50,7 @@
 	</select>
 	<!-- 根据帖子id查询标签 -->
 	<select id="selectTagsListByPostId" parameterType="int" resultMap="BaseResultMap">
-		select a.id,a.content
+		select a.*
 			from iu_community_tags a, iu_community_post_tag b,iu_community_post c
 		where 
 			a.id = b.tags_id and c.id = b.post_id and c.id =#{postId}

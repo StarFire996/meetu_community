@@ -1,6 +1,5 @@
 package com.meetu.community.controller;
 
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,25 +15,28 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.alibaba.fastjson.JSONObject;
-import com.meetu.community.domain.Praise;
-import com.meetu.community.service.PraiseService;
+import com.meetu.community.service.ComBiuService;
+import com.meetu.community.service.NotifyService;
 import com.meetu.community.service.UserService;
 
 @Controller
-@RequestMapping("app/community/praise")
-public class PraiseController {
-
-	public static Logger LOGGER = LoggerFactory
-			.getLogger(PraiseController.class);
-
+@RequestMapping("app/overall")
+public class OverAllController {
+	
+	public static Logger LOGGER = LoggerFactory.getLogger(OverAllController.class);
+	
 	@Autowired
-	private PraiseService praiseService;
-
+	private ComBiuService biuService;
+	
+	@Autowired
+	private NotifyService notifyService;
+	
 	@Autowired
 	private UserService userService;
-
-	@RequestMapping(value = "doPraise", method = RequestMethod.POST)
-	public ResponseEntity<JSONObject> doPraise(HttpServletRequest request,
+	
+	// 抢一条biu
+	@RequestMapping(value = "getStatus", method = RequestMethod.POST)
+	public ResponseEntity<JSONObject> getStatus(HttpServletRequest request,
 			@RequestParam("data") String jsonData) {
 		JSONObject json = new JSONObject();
 		JSONObject json2 = new JSONObject();
@@ -44,34 +46,28 @@ public class PraiseController {
 			JSONObject data = JSONObject.parseObject(jsonData);
 			String newToken = (String) request.getAttribute("token");
 			String userId = (String) request.getAttribute("userid");
-			Integer postId = data.getInteger("postId");
-			Integer userTo = data.getInteger("userCode");
-
+			
+			
 			json2.put("token", newToken);
-
-			debugMap.put("postId", postId);
-			debugMap.put("userCode", userTo);
 			debugMap.put("userId", userId);
-			
-			
-			Integer userFrom = this.userService.selectCodeById(userId);
-			
-			//userFrom = 12880;
 
-			Praise praise = new Praise();
-			praise.setCreateAt(new Timestamp(System.currentTimeMillis()));
-			praise.setPostId(postId);
-			praise.setUserFrom(userFrom);
-			praise.setUserTo(userTo);
+			Integer userFrom = this.userService.selectCodeById(userId);
+
+			//userFrom = 12880;
 			
-			this.praiseService.doPraise(praise);
 			
+			Integer comBiuNum = this.biuService.selectBiuUnRead(userFrom);
+			Integer notifyNum = this.notifyService.selectNotifyUnRead(userFrom);
+			
+			json2.put("comBiuNum", comBiuNum==null?0:comBiuNum);
+			json2.put("notifyNum", notifyNum==null?0:notifyNum);
+
 			json.put("data", json2);
 			json.put("state", "200");
 
 			debugMap.put("json", json);
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("doPraise:{}", debugMap);
+				LOGGER.info("getStatus:{}", debugMap);
 			}
 
 			return ResponseEntity.ok(json);
@@ -79,7 +75,7 @@ public class PraiseController {
 			json.put("state", "300");
 			json.put("error", e.getMessage());
 			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("doPraise_err:{}", e.getMessage());
+				LOGGER.error("getStatus_err:{}", e.getMessage());
 			}
 		}
 		return ResponseEntity.ok(json);

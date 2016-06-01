@@ -21,4 +21,6 @@ public interface NotifyService {
 	public void parseNotifyToJson(List<Notify> notifyList, JSONArray notifyArr) throws Exception;
 	
 	public void deleteNotifyByUserTo(Integer userTo);
+
+	public Integer selectNotifyUnRead(Integer userFrom);
 }

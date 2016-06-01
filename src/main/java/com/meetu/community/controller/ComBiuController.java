@@ -107,7 +107,7 @@ public class ComBiuController {
 
 			Integer userFrom = this.userService.selectCodeById(userId);
 			
-			userFrom =12880;
+			//userFrom =12880;
 			
 			List<ComBiu> biuList = null;
 			Timestamp timestamp = null;
@@ -151,6 +151,101 @@ public class ComBiuController {
 			json.put("error", e.getMessage());
 			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error("getPostListByTag_err:{}", e.getMessage());
+			}
+		}
+		return ResponseEntity.ok(json);
+	}
+	
+	
+	
+	// 接受biu我的人
+	@RequestMapping(value = "acceptComBiu", method = RequestMethod.POST)
+	public ResponseEntity<JSONObject> acceptComBiu(HttpServletRequest request,
+			@RequestParam("data") String jsonData) {
+		JSONObject json = new JSONObject();
+		JSONObject json2 = new JSONObject();
+		Map<String, Object> debugMap = new HashMap<String, Object>();
+		try {
+			// 请求参数获取
+			JSONObject data = JSONObject.parseObject(jsonData);
+			String newToken = (String) request.getAttribute("token");
+			String userId = (String) request.getAttribute("userid");
+			//抢我用户的code
+			Integer userTo = data.getInteger("userCode");
+
+			json2.put("token", newToken);
+			debugMap.put("userId", userId);
+			debugMap.put("userTo", userTo);
+
+			Integer userFrom = this.userService.selectCodeById(userId);
+			
+			//userFrom = 12880;
+			
+			JSONObject acceptComBiu = this.biuService.acceptComBiu(userFrom,userTo);
+			if (acceptComBiu.getBoolean("state")) {
+				json.put("data", json2);
+				json.put("state", "200");
+			}else{
+				json.put("state", "300");
+				json.put("error", acceptComBiu.getString("error"));
+			}
+
+			debugMap.put("json", json);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("deleteComBiu:{}", debugMap);
+			}
+
+			return ResponseEntity.ok(json);
+		} catch (Exception e) {
+			json.put("state", "300");
+			json.put("error", e.getMessage());
+			if (LOGGER.isErrorEnabled()) {
+				LOGGER.error("deleteComBiu_err:{}", e.getMessage());
+			}
+		}
+		return ResponseEntity.ok(json);
+	}
+	
+	
+	// 清空biu我的人
+	@RequestMapping(value = "deleteComBiu", method = RequestMethod.POST)
+	public ResponseEntity<JSONObject> deleteComBiu(HttpServletRequest request,
+			@RequestParam("data") String jsonData) {
+		JSONObject json = new JSONObject();
+		JSONObject json2 = new JSONObject();
+		Map<String, Object> debugMap = new HashMap<String, Object>();
+		try {
+			// 请求参数获取
+			JSONObject data = JSONObject.parseObject(jsonData);
+			String newToken = (String) request.getAttribute("token");
+			String userId = (String) request.getAttribute("userid");
+			//被抢用户的code
+			Integer userTo = data.getInteger("userCode");
+
+			json2.put("token", newToken);
+			debugMap.put("userId", userId);
+			debugMap.put("userTo", userTo);
+
+			Integer userFrom = this.userService.selectCodeById(userId);
+			
+			//userFrom = 12880;
+			
+			this.biuService.deleteBiuByUserCode(userFrom);
+
+			json.put("data", json2);
+			json.put("state", "200");
+
+			debugMap.put("json", json);
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("deleteComBiu:{}", debugMap);
+			}
+
+			return ResponseEntity.ok(json);
+		} catch (Exception e) {
+			json.put("state", "300");
+			json.put("error", e.getMessage());
+			if (LOGGER.isErrorEnabled()) {
+				LOGGER.error("deleteComBiu_err:{}", e.getMessage());
 			}
 		}
 		return ResponseEntity.ok(json);

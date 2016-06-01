@@ -30,8 +30,7 @@
     <task:annotation-driven/>
     <context:annotation-config />
     
- 
-    <!-- 登录拦截器  
+    <!-- 登录拦截器 -->
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<mvc:mapping path="/app/**" />
@@ -39,7 +38,6 @@
 			<mvc:exclude-mapping  path="/app/push/**" />
 			<bean id="authorizationInterceptor" class="com.meetu.authorization.interceptor.AuthorizationInterceptor" />
 		</mvc:interceptor>
-		
 	</mvc:interceptors>
-    -->
+    
 </beans>

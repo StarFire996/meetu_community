@@ -87,7 +87,8 @@ public class PostController {
 			post.setType(type);
 
 			this.postService.savePost(post, tags,imgs);
-
+			
+			json2.put("postId", post.getId());
 			json.put("data", json2);
 			json.put("state", "200");
 
@@ -200,6 +201,7 @@ public class PostController {
 //			userFrom =12880;
 //			userId="1511751ce0eb46dd9fd1f87b49949ee0";
 			
+			
 			List<Post> postList = null;
 			List<Activity> actList = null;
 			Timestamp timestamp = null;
@@ -210,7 +212,6 @@ public class PostController {
 				// 加载更多
 				timestamp = new Timestamp(time * 1000);
 			}
-
 			if (type == 0) {
 				// 新鲜的帖子
 				postList = this.postService.selectNewPostList(timestamp);
@@ -223,7 +224,8 @@ public class PostController {
 			}
 			//活动banner
 			actList = this.activityService.selectActivityByType(type);
-
+			
+			
 			JSONArray actArray = new JSONArray();
 			if (actList != null && actList.size() > 0) {
 				this.activityService.parseActivityListToJson(actList, actArray);
@@ -288,8 +290,8 @@ public class PostController {
 			debugMap.put("time", time);
 
 			Integer userFrom = this.userService.selectCodeById(userId);
-			//userFrom =12880;
-//			userId="1511751ce0eb46dd9fd1f87b49949ee0";
+			userFrom =12880;
+			userId="1511751ce0eb46dd9fd1f87b49949ee0";
 			
 			
 			List<Comment> comList = null;
@@ -335,7 +337,7 @@ public class PostController {
 
 			debugMap.put("json", json);
 			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info("getPostListByType:{}", debugMap);
+				LOGGER.info("getPostDetail:{}", debugMap);
 			}
 
 			return ResponseEntity.ok(json);
@@ -343,7 +345,7 @@ public class PostController {
 			json.put("state", "300");
 			json.put("error", e.getMessage());
 			if (LOGGER.isErrorEnabled()) {
-				LOGGER.error("getPostListByType_err:{}", e.getMessage());
+				LOGGER.error("getPostDetail_err:{}", e.getMessage());
 			}
 		}
 		return ResponseEntity.ok(json);
@@ -439,7 +441,10 @@ public class PostController {
 			Integer userFrom = this.userService.selectCodeById(userId);
 //			userFrom =12880;
 			
-			this.postService.deletePost(postId);
+			Post post = this.postService.selectPostById(postId);
+			if (post != null && userFrom.equals(post.getCreateBy())) {
+				this.postService.deletePost(postId);
+			}
 
 			json.put("data", json2);
 			json.put("state", "200");

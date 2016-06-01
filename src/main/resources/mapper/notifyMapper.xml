@@ -28,6 +28,13 @@
 		user_from = #{userFrom} and user_to = #{userTo} and post_id = #{postId} and type =#{type}
 	</select>
 	
+	<!-- 查询未读通知个数 -->
+	<select id="selectNotifyUnRead" parameterType="int" resultType="int">
+		select count(*) from iu_community_notify 
+		where 
+		user_to = #{userFrom} and is_read = 0 group by user_to
+	</select>
+	
 
 	<insert id="insertNotify" useGeneratedKeys="true" keyProperty="id"
 		parameterType="com.meetu.community.domain.Notify">

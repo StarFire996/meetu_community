@@ -11,7 +11,7 @@ public interface PraiseService {
 
 	public Integer isPraise(Praise praise);
 
-	public void doPraise(Praise praise,Integer isPraise);
+	public void doPraise(Praise praise);
 
 	public void deletePraiseByPostId(Integer postId);
 }
